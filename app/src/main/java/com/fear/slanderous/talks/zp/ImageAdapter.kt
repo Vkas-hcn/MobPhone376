@@ -34,34 +34,35 @@ class ImageAdapter(
         private val tvSize: MaterialButton = itemView.findViewById(R.id.tv_size)
 
         fun bind(image: ImageItem) {
-            Glide.with(this.itemView.context.applicationContext)
+            // 加载图片
+            Glide.with(itemView.context.applicationContext)
                 .load(File(image.path))
                 .placeholder(R.mipmap.ic_launcher)
                 .error(R.mipmap.ic_launcher)
                 .centerCrop()
                 .into(ivPicture)
 
-            cbSelect.setImageResource(
-                if (image.isSelected) R.drawable.check_yuan else R.drawable.discheck_yuan
-            )
+            // 更新选中状态
+            updateSelectionUI(image.isSelected)
 
+            // 显示文件大小
             tvSize.text = formatFileSize(image.size)
 
-            itemView.setOnClickListener {
+            // 点击事件
+            val clickListener = View.OnClickListener {
                 image.isSelected = !image.isSelected
-                cbSelect.setImageResource(
-                    if (image.isSelected) R.drawable.check_yuan else R.drawable.discheck_yuan
-                )
+                updateSelectionUI(image.isSelected)
                 onSelectionChanged()
             }
 
-            cbSelect.setOnClickListener {
-                image.isSelected = !image.isSelected
-                cbSelect.setImageResource(
-                    if (image.isSelected) R.drawable.check_yuan else R.drawable.discheck_yuan
-                )
-                onSelectionChanged()
-            }
+            itemView.setOnClickListener(clickListener)
+            cbSelect.setOnClickListener(clickListener)
+        }
+
+        private fun updateSelectionUI(isSelected: Boolean) {
+            cbSelect.setImageResource(
+                if (isSelected) R.drawable.check_yuan else R.drawable.discheck_yuan
+            )
         }
 
         private fun formatFileSize(bytes: Long): String {

@@ -1,3 +1,65 @@
 <resources>
     <string name="app_name">MobPhone376</string>
+    <!-- 文件清理相关字符串 -->
+    <string name="delete">Delete</string>
+    <string name="delete_with_count">Delete (%d)</string>
+    <string name="select_all">Select All</string>
+    <string name="clear_all">Clear All</string>
+    <string name="invert_selection">Invert Selection</string>
+
+    <!-- 筛选相关 -->
+    <string name="all_types">All types</string>
+    <string name="all_size">All Size</string>
+    <string name="all_time">All Time</string>
+
+    <!-- 文件类型 -->
+    <string name="type_image">Image</string>
+    <string name="type_video">Video</string>
+    <string name="type_audio">Audio</string>
+    <string name="type_docs">Docs</string>
+    <string name="type_download">Download</string>
+    <string name="type_zip">Zip</string>
+
+    <!-- 文件大小筛选 -->
+    <string name="size_1mb">&gt;1MB</string>
+    <string name="size_5mb">&gt;5MB</string>
+    <string name="size_10mb">&gt;10MB</string>
+    <string name="size_20mb">&gt;20MB</string>
+    <string name="size_50mb">&gt;50MB</string>
+    <string name="size_100mb">&gt;100MB</string>
+    <string name="size_200mb">&gt;200MB</string>
+    <string name="size_500mb">&gt;500MB</string>
+
+    <!-- 时间筛选 -->
+    <string name="time_1_day">Within 1 day</string>
+    <string name="time_1_week">Within 1 week</string>
+    <string name="time_1_month">Within 1 month</string>
+    <string name="time_3_month">Within 3 month</string>
+    <string name="time_6_month">Within 6 month</string>
+
+    <!-- 对话框标题 -->
+    <string name="confirm_delete_title">Confirm Delete</string>
+    <string name="confirm_delete_message">Are you sure you want to delete %d file(s)? This action cannot be undone.</string>
+    <string name="selection_options">Selection Options</string>
+    <string name="select_filter">Select %s</string>
+
+    <!-- 提示信息 -->
+    <string name="no_files_found">No files found</string>
+    <string name="no_files_selected">No files selected</string>
+    <string name="scan_failed">Scan failed: %s</string>
+    <string name="delete_failed">Delete failed: %s</string>
+    <string name="files_found">Found %d files, Total size: %s</string>
+    <string name="filter_result">%d files found (%s)</string>
+    <string name="selected_all_files">Selected all %d files</string>
+    <string name="cleared_all_selections">Cleared all selections</string>
+    <string name="selection_inverted">Selection inverted: %d files selected</string>
+    <string name="no_files_to_select">No files to select</string>
+
+    <!-- 按钮文本 -->
+    <string name="cancel">Cancel</string>
+    <string name="confirm">Confirm</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="back">Back</string>
+    <string name="cleaning">Cleaning...</string>
+    <string name="scanning">Scanning...</string>
 </resources>
