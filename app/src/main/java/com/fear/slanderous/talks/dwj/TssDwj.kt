@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -15,47 +14,133 @@ import com.fear.slanderous.talks.databinding.TssWjBinding
 import com.google.android.material.snackbar.Snackbar
 import com.fear.slanderous.talks.js.TssJs
 
-class TssDwj : AppCompatActivity(), FileAdapterListener {
+class TssDwj : AppCompatActivity(), FileView, FileAdapterListener {
     private val binding by lazy { TssWjBinding.inflate(layoutInflater) }
     private lateinit var adapter: OptimizedFileAdapter
-
-    private val viewModel: ImprovedBigFileViewModel by viewModels {
-        ImprovedBigFileViewModelFactory(
-            scanFilesUseCase = ScanFilesUseCase(FileRepositoryImpl(this)),
-            deleteFilesUseCase = DeleteFilesUseCase(FileRepositoryImpl(this)),
-            filterFilesUseCase = FilterFilesUseCase()
-        )
-    }
-
-    private val filterOptions by lazy {
-        mapOf(
-            "types" to arrayOf("All types", "Image", "Video", "Audio", "Docs", "Download", "Zip"),
-            "sizes" to arrayOf("All Size", ">1MB", ">5MB", ">10MB", ">20MB", ">50MB", ">100MB", ">200MB", ">500MB"),
-            "times" to arrayOf("All Time", "Within 1 day", "Within 1 week", "Within 1 month", "Within 3 month", "Within 6 month")
-        )
-    }
+    private lateinit var presenter: FilePresenter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
         setContentView(binding.root)
 
-        binding.lifecycleOwner = this
-        binding.viewModel = viewModel
+        // 初始化 Presenter
+        presenter = FilePresenterImpl(
+            scanFilesUseCase = ScanFilesUseCase(FileRepositoryImpl(this)),
+            deleteFilesUseCase = DeleteFilesUseCase(FileRepositoryImpl(this)),
+            filterFilesUseCase = FilterFilesUseCase()
+        )
+        presenter.attachView(this)
 
         setupViews()
-        showCleaningDialog()
-        observeViewModel()
-
-
-        viewModel.startScanning()
+        presenter.startScanning()
     }
-    private fun showCleaningDialog() {
-        binding.dialogType.root.setOnClickListener {  }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        presenter.detachView()
+    }
+
+    private fun setupViews() {
+        binding.textBack.setOnClickListener { finish() }
+        binding.textBack.setOnLongClickListener {
+            presenter.onBackLongClicked()
+            true
+        }
+
+        adapter = OptimizedFileAdapter(this)
+        binding.rvFiles.apply {
+            layoutManager = LinearLayoutManager(this@TssDwj)
+            adapter = this@TssDwj.adapter
+            addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
+        }
+
+        binding.tvType.setOnClickListener { presenter.onFilterTypeClicked() }
+        binding.tvSize.setOnClickListener { presenter.onFilterSizeClicked() }
+        binding.tvTime.setOnClickListener { presenter.onFilterTimeClicked() }
+        binding.btnDelete.setOnClickListener { presenter.onDeleteButtonClicked() }
+    }
+
+    // FileView 接口实现
+    override fun showLoading() {
+        // 加载中状态
+    }
+
+    override fun hideLoading() {
+        // 隐藏加载状态
+    }
+
+    override fun showFiles(files: List<FileItem>) {
+        adapter.submitList(files) {
+            if (files.isNotEmpty()) {
+                binding.rvFiles.scrollToPosition(0)
+            }
+        }
+        binding.rvFiles.visibility = if (files.isEmpty()) View.INVISIBLE else View.VISIBLE
+    }
+
+    override fun showNoFiles() {
+        binding.tvNoFiles.visibility = View.VISIBLE
+    }
+
+    override fun hideNoFiles() {
+        binding.tvNoFiles.visibility = View.GONE
+    }
+
+    override fun updateDeleteButton(enabled: Boolean, count: Int) {
+        binding.btnDelete.isEnabled = enabled
+        binding.btnDelete.text = if (count > 0) "Delete ($count)" else "Delete"
+    }
+
+    override fun updateFilters(type: String, size: String, time: String) {
+        binding.tvType.text = type
+        binding.tvSize.text = size
+        binding.tvTime.text = time
+    }
+
+    override fun showError(message: String) {
+        Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
+    }
+
+    override fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+    }
+
+    override fun showFilterDialog(filterType: String, options: Array<String>) {
+        AlertDialog.Builder(this)
+            .setTitle("Select ${filterType.removeSuffix("s")}")
+            .setItems(options) { _, which ->
+                presenter.onFilterOptionSelected(filterType, options[which])
+            }
+            .show()
+    }
+
+    override fun showDeleteConfirmDialog(count: Int) {
+        AlertDialog.Builder(this)
+            .setTitle("Confirm Delete")
+            .setMessage("Are you sure you want to delete $count file(s)?")
+            .setPositiveButton("Delete") { _, _ ->
+                presenter.onDeleteConfirmed()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    override fun showSelectionOptionsDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Selection Options")
+            .setItems(arrayOf("Select All", "Clear All")) { _, which ->
+                presenter.onSelectionOptionSelected(which)
+            }
+            .show()
+    }
+
+    override fun showCleaningDialog() {
+        binding.dialogType.root.setOnClickListener { }
         binding.dialogType.tvBack.setOnClickListener { finish() }
-        binding.dialogType.imgLogo.setImageResource( R.drawable.dwj_icon_main)
+        binding.dialogType.imgLogo.setImageResource(R.drawable.dwj_icon_main)
         binding.dialogType.conClean.visibility = View.VISIBLE
+
         val rotateAnimation = android.view.animation.RotateAnimation(
             0f, 360f,
             android.view.animation.Animation.RELATIVE_TO_SELF, 0.5f,
@@ -66,130 +151,14 @@ class TssDwj : AppCompatActivity(), FileAdapterListener {
         rotateAnimation.interpolator = android.view.animation.LinearInterpolator()
 
         binding.dialogType.imgBg1.startAnimation(rotateAnimation)
-
-        binding.dialogType.conClean.postDelayed({
-            binding.dialogType.conClean.visibility = View.GONE
-            binding.dialogType.imgBg1.clearAnimation()
-        }, 1500)
     }
 
-    private fun setupViews() {
-        binding.textBack.setOnClickListener { finish() }
-
-        adapter = OptimizedFileAdapter(this)
-        binding.rvFiles.apply {
-            layoutManager = LinearLayoutManager(this@TssDwj)
-            adapter = this@TssDwj.adapter
-
-            addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
-        }
-
-        binding.tvType.setOnClickListener { showFilterDialog("types") }
-        binding.tvSize.setOnClickListener { showFilterDialog("sizes") }
-        binding.tvTime.setOnClickListener { showFilterDialog("times") }
-
-        binding.btnDelete.setOnClickListener {
-            showDeleteConfirmDialog()
-        }
-
-        binding.textBack.setOnLongClickListener {
-            showSelectionOptionsDialog()
-            true
-        }
+    override fun hideCleaningDialog() {
+        binding.dialogType.conClean.visibility = View.GONE
+        binding.dialogType.imgBg1.clearAnimation()
     }
 
-    private fun observeViewModel() {
-        viewModel.uiState.observe(this) { state ->
-            adapter.submitList(state.files) {
-                if (state.files.isNotEmpty()) {
-                    binding.rvFiles.scrollToPosition(0)
-                }
-            }
-
-            updateVisibility(state)
-            updateDeleteButton(state)
-            updateFilterDisplay(state)
-            handleError(state)
-        }
-
-        viewModel.navigateToFinish.observe(this) { result ->
-            if (result != null) {
-                navigateToFinishActivity(result)
-                viewModel.onNavigatedToFinish()
-            }
-        }
-    }
-
-    private fun updateVisibility(state: BigFileUiState) {
-        binding.tvNoFiles.visibility = if (state.files.isEmpty() && !state.isLoading) View.VISIBLE else View.GONE
-        binding.rvFiles.visibility = if (state.files.isEmpty() && !state.isLoading) View.INVISIBLE else View.VISIBLE
-    }
-
-    private fun updateDeleteButton(state: BigFileUiState) {
-        binding.btnDelete.isEnabled = state.selectedCount > 0
-        binding.btnDelete.text = if (state.selectedCount > 0) "Delete (${state.selectedCount})" else "Delete"
-    }
-
-    private fun updateFilterDisplay(state: BigFileUiState) {
-        binding.tvType.text = state.filter.type
-        binding.tvSize.text = state.filter.size
-        binding.tvTime.text = state.filter.time
-    }
-
-    private fun handleError(state: BigFileUiState) {
-        state.error?.let { message ->
-            if (message.startsWith("Successfully")) {
-                Toast.makeText(this, message, Toast.LENGTH_LONG).show()
-            } else {
-                Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
-            }
-        }
-    }
-
-    private fun showFilterDialog(filterType: String) {
-        val options = filterOptions[filterType] ?: return
-        val alertDialog = AlertDialog.Builder(this)
-            .setTitle("Select ${filterType.removeSuffix("s")}")
-            .setItems(options) { _, which ->
-                val selectedOption = options[which]
-                when(filterType) {
-                    "types" -> viewModel.updateFilter(type = selectedOption)
-                    "sizes" -> viewModel.updateFilter(size = selectedOption)
-                    "times" -> viewModel.updateFilter(time = selectedOption)
-                }
-            }
-            .create()
-
-        alertDialog.show()
-    }
-
-    private fun showDeleteConfirmDialog() {
-        val selectedCount = viewModel.uiState.value?.selectedCount ?: 0
-        if (selectedCount == 0) return
-
-        AlertDialog.Builder(this)
-            .setTitle("Confirm Delete")
-            .setMessage("Are you sure you want to delete $selectedCount file(s)?")
-            .setPositiveButton("Delete") { _, _ ->
-                viewModel.deleteSelectedFiles()
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
-    }
-
-    private fun showSelectionOptionsDialog() {
-        AlertDialog.Builder(this)
-            .setTitle("Selection Options")
-            .setItems(arrayOf("Select All", "Clear All")) { _, which ->
-                when(which) {
-                    0 -> viewModel.selectAllFiles()
-                    1 -> viewModel.clearAllSelections()
-                }
-            }
-            .show()
-    }
-
-    private fun navigateToFinishActivity(result: DeleteResult) {
+    override fun navigateToFinishActivity(result: DeleteResult) {
         val intent = Intent(this, TssJs::class.java)
         intent.putExtra("CLEANED_SIZE", result.totalSize)
         intent.putExtra("jump_type", "file")
@@ -197,10 +166,12 @@ class TssDwj : AppCompatActivity(), FileAdapterListener {
         finish()
     }
 
+    // FileAdapterListener 接口实现
     override fun onItemClick(position: Int) {
-        viewModel.toggleFileSelection(position)
+        presenter.toggleFileSelection(position)
     }
 
     override fun onSelectionChanged(selectedCount: Int) {
+        // Presenter 内部已处理
     }
 }
