@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.fear.slanderous.talks.mas.MainViewModel" />
+
+        <variable
+            name="storageInfo"
+            type="com.fear.slanderous.talks.mas.StorageInfo" />
+    </data>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:id="@+id/main"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#066BFA"
+            android:orientation="vertical"
+            tools:context=".main.MainActivity">
+
+            <!-- Top Title and Settings Icon -->
+            <RelativeLayout
+                android:id="@+id/title_bar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_marginStart="20dp"
+                    android:text="@string/app_name"
+                    android:textColor="#FFFFFFFF"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:id="@+id/settings_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginEnd="20dp"
+                    android:src="@drawable/set" />
+
+            </RelativeLayout>
+
+            <!-- Circular Progress Section -->
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="40dp">
+
+                <ImageView
+                    android:id="@+id/img_5"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:src="@drawable/bg_main_pro" />
+
+
+                <com.google.android.material.progressindicator.CircularProgressIndicator
+                    android:id="@+id/progress_circle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_margin="0dp"
+                    android:progress="@{storageInfo.usedPercentage}"
+                    app:indicatorColor="#036CFA"
+                    app:indicatorInset="0dp"
+                    app:indicatorSize="160dp"
+                    app:trackColor="#E5EBF2"
+                    app:trackThickness="8dp"
+                    tools:progress="0" />
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center">
+
+                    <LinearLayout
+                        android:id="@+id/ll_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:layout_marginBottom="4dp"
+                        android:gravity="center_horizontal|bottom"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/progress_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:padding="0dp"
+                            android:text="@{String.valueOf(storageInfo.usedPercentage)}"
+                            android:textColor="#2C4166"
+                            android:textSize="30sp"
+                            tools:text="0" />
+
+                        <TextView
+                            android:id="@+id/progress_text_un"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="%"
+                            android:textColor="#2C4166"
+                            android:textSize="16sp" />
+                    </LinearLayout>
+
+
+
+                </RelativeLayout>
+
+            </FrameLayout>
+
+            <!-- Storage Information -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/free_storage"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@{storageInfo.freeStorage}"
+                        android:textColor="#FFFFFFFF"
+                        android:textSize="18sp"
+                        tools:text="128 GB" />
+
+                    <TextView
+                        android:id="@+id/free_storage_un"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="Free"
+                        android:textColor="#94FFFFFF"
+                        android:textSize="14sp" />
+
+                </LinearLayout>
+
+                <View
+                    android:id="@+id/view_line"
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:background="#438FFC" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/used_storage"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@{storageInfo.usedStorage}"
+                        android:textColor="#FFFFFFFF"
+                        android:textSize="18sp"
+                        tools:text="33 GB" />
+
+                    <TextView
+                        android:id="@+id/used_storage_un"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="Used"
+                        android:textColor="#94FFFFFF"
+                        android:textSize="14sp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <FrameLayout
+                android:id="@+id/fl_clean"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="65dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/clean_but_bg"
+                android:gravity="center"
+                android:paddingVertical="17dp">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/clean_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:text="Clean"
+                    android:textStyle="bold"
+                    android:textColor="#FF2C4166"
+                    android:textSize="15sp" />
+            </FrameLayout>
+
+            <!-- Bottom Section -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_marginTop="19dp"
+                android:background="@color/white"
+                android:orientation="horizontal"
+                android:paddingHorizontal="20dp"
+                android:paddingVertical="24dp">
+
+                <LinearLayout
+                    android:id="@+id/ll_image"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="28dp"
+                    android:layout_weight="1"
+                    android:gravity="start"
+                    android:background="@drawable/clean_gn_bg"
+                    android:orientation="vertical"
+                    android:padding="11dp">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/zp_icon_main" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginTop="22dp"
+                        android:text="Antivrirus"
+                        android:textColor="#FF334F80"
+                        android:gravity="start"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_file"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/clean_gn_bg"
+                    android:orientation="vertical"
+                    android:padding="11dp">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/dwj_icon_main" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginTop="22dp"
+                        android:text="Empty Folder"
+                        android:textColor="#FF893F2B"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+
+        <include
+            android:id="@+id/tss_quan"
+            layout="@layout/tss_quan" />
+    </FrameLayout>
+</layout>

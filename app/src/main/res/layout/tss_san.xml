@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/delete"
+    android:visibility="gone"
+    android:background="#B3000000">
+
+
+
+        <LinearLayout
+            android:id="@+id/linearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_marginHorizontal="16dp"
+            android:background="@drawable/dialog_bg"
+            android:gravity="center"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/delete_dialog_icon"
+                app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="17dp"
+                android:gravity="center"
+                android:text="Do you delete files?"
+                android:textColor="#FF323943"
+                android:textSize="16sp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:gravity="center"
+                android:layout_marginBottom="17dp"
+                android:layout_marginHorizontal="35dp"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/tv_cancel"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    app:backgroundTint="#E2E8ED"
+                    app:cornerRadius="9dp"
+                    android:paddingVertical="9dp"
+                    android:text="No"
+                    android:textColor="#FF8F8F8F"
+                    android:textSize="18sp"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/tv_yes"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="18dp"
+                    android:layout_height="wrap_content"
+                    app:backgroundTint="#066BFA"
+                    app:cornerRadius="9dp"
+                    android:paddingVertical="9dp"
+                    android:text="Yes"
+                    android:textColor="#FFFFFFFF"
+                    android:textSize="18sp"/>
+            </LinearLayout>
+
+        </LinearLayout>
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
