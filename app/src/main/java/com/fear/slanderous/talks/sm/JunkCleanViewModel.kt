@@ -5,6 +5,15 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
+import com.fear.slanderous.talks.sm.FileUtils
+import com.fear.slanderous.talks.sm.JunkFileRepository
+import com.fear.slanderous.talks.sm.JunkCategory
+import com.fear.slanderous.talks.sm.JunkFile
+import com.fear.slanderous.talks.sm.ScanState
+import com.fear.slanderous.talks.sm.CleanState
+import com.fear.slanderous.talks.sm.ScanProgressListener
+import com.fear.slanderous.talks.sm.CleanProgressListener
+import com.fear.slanderous.talks.sm.JunkFileTypeMy
 import kotlinx.coroutines.launch
 
 class JunkCleanViewModel(

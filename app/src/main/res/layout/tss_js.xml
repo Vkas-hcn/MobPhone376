@@ -5,13 +5,6 @@
 
     <data>
 
-        <variable
-            name="viewModel"
-            type="com.fear.slanderous.talks.mas.MainViewModel" />
-
-        <variable
-            name="storageInfo"
-            type="com.fear.slanderous.talks.mas.StorageInfo" />
     </data>
 
     <FrameLayout
