@@ -36,9 +36,7 @@ class FilePresenterImpl(
         presenterScope.launch {
             view?.showLoading()
             view?.showCleaningDialog()
-
-            // 延迟1.5秒后隐藏扫描对话框
-            delay(1500)
+            delay(2000)
             view?.hideCleaningDialog()
 
             try {
@@ -52,6 +50,7 @@ class FilePresenterImpl(
                 view?.hideLoading()
                 view?.showError(e.message ?: "Unknown error occurred")
             }
+
         }
     }
 

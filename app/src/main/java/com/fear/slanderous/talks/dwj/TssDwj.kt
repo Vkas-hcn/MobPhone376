@@ -2,6 +2,7 @@ package com.fear.slanderous.talks.dwj
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -140,7 +141,6 @@ class TssDwj : AppCompatActivity(), FileView, FileAdapterListener {
         binding.dialogType.tvBack.setOnClickListener { finish() }
         binding.dialogType.imgLogo.setImageResource(R.drawable.dwj_icon_main)
         binding.dialogType.conClean.visibility = View.VISIBLE
-
         val rotateAnimation = android.view.animation.RotateAnimation(
             0f, 360f,
             android.view.animation.Animation.RELATIVE_TO_SELF, 0.5f,

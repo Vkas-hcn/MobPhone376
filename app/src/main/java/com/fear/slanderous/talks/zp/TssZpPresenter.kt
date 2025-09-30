@@ -34,9 +34,10 @@ class TssZpPresenter(
      * 加载图片数据
      */
     override fun loadImages() {
-        view?.showLoadingDialog()
-
         presenterScope.launch {
+            view?.showLoadingDialog()
+            delay(1500)
+            view?.hideLoadingDialog()
             try {
                 val images = withContext(Dispatchers.IO) {
                     model.getAllImages()
@@ -50,14 +51,12 @@ class TssZpPresenter(
                 imageGroups.addAll(groupedImages)
 
                 view?.apply {
-                    hideLoadingDialog()
                     showImages(imageGroups)
                     updateSelectedSize(model.calculateSelectedSize(imageGroups))
                     updateSelectAllIcon(model.isAllSelected(imageGroups))
                 }
             } catch (e: Exception) {
                 view?.apply {
-                    hideLoadingDialog()
                     showError("Failed to load images: ${e.message}")
                 }
             }

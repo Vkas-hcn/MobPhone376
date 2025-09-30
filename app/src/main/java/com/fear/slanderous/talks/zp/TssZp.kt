@@ -119,11 +119,10 @@ class TssZp : AppCompatActivity(), TssZpContract.View {
      * 隐藏加载动画
      */
     override fun hideLoadingDialog() {
-        binding.dialogType.conClean.postDelayed({
-            binding.dialogType.conClean.visibility = View.GONE
-            binding.dialogType.imgBg1.clearAnimation()
-            binding.dialogType.root.visibility = View.GONE
-        }, 500)
+
+
+        binding.dialogType.conClean.visibility = View.GONE
+        binding.dialogType.imgBg1.clearAnimation()
     }
 
     /**
