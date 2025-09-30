@@ -10,7 +10,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.fear.slanderous.talks.R
-import com.fear.slanderous.talks.databinding.ItemFileCleanBinding
+import com.fear.slanderous.talks.databinding.TssFileCleanBinding
 import java.io.File
 
 interface FileAdapterListener {
@@ -22,7 +22,7 @@ class OptimizedFileAdapter(
 ) : ListAdapter<FileItem, OptimizedFileAdapter.FileViewHolder>(FileItemDiffCallback()) {
 
     inner class FileViewHolder(
-        private val binding: ItemFileCleanBinding
+        private val binding: TssFileCleanBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
         init {
@@ -79,9 +79,9 @@ class OptimizedFileAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FileViewHolder {
-        val binding = DataBindingUtil.inflate<ItemFileCleanBinding>(
+        val binding = DataBindingUtil.inflate<TssFileCleanBinding>(
             LayoutInflater.from(parent.context),
-            R.layout.item_file_clean,
+            R.layout.tss_file_clean,
             parent,
             false
         )

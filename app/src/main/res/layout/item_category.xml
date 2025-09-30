@@ -88,7 +88,7 @@
                 app:layout_constraintTop_toBottomOf="@id/ll_category"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                tools:listitem="@layout/item_file"
+                tools:listitem="@layout/tss_file"
                 tools:itemCount="3"
                 tools:visibility="visible" />
 

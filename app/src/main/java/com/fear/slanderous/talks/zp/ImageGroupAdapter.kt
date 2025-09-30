@@ -7,10 +7,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.fear.slanderous.talks.R
-import com.google.android.material.button.MaterialButton
-import java.io.File
 
 /**
  * 图片分组Adapter - 重构后支持MVP模式
@@ -31,7 +28,7 @@ class ImageGroupAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_show_picture_group, parent, false)
+            .inflate(R.layout.tss_picture_group, parent, false)
         return ViewHolder(view)
     }
 

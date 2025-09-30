@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.fear.slanderous.talks.R
 import com.fear.slanderous.talks.databinding.ItemCategoryBinding
-import com.fear.slanderous.talks.databinding.ItemFileBinding
+import com.fear.slanderous.talks.databinding.TssFileBinding
 
 class CategoryAdapter(
     private val onCategoryClick: (JunkCategory) -> Unit,
@@ -113,7 +113,7 @@ class FileAdapter(
 ) : ListAdapter<JunkFile, FileAdapter.FileViewHolder>(FileDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FileViewHolder {
-        val binding = ItemFileBinding.inflate(
+        val binding = TssFileBinding.inflate(
             LayoutInflater.from(parent.context),
             parent,
             false
@@ -135,7 +135,7 @@ class FileAdapter(
     }
 
     inner class FileViewHolder(
-        private val binding: ItemFileBinding
+        private val binding: TssFileBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
         init {

@@ -85,7 +85,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
-                tools:listitem="@layout/item_file_clean"
+                tools:listitem="@layout/tss_file_clean"
                 android:clipToPadding="false"
                 android:paddingHorizontal="16dp"
                 android:paddingVertical="8dp"
