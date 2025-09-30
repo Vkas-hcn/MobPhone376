@@ -3,19 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
-        <variable
-            name="file"
-            type="com.fear.slanderous.talks.sm.JunkFile" />
-    </data>
+    <!-- 移除data绑定 -->
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="12dp"
         android:background="?attr/selectableItemBackground">
-
-
 
         <LinearLayout
             android:id="@+id/text_container"
@@ -33,15 +27,12 @@
                 android:id="@+id/tv_file_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@{file.name}"
                 android:textColor="#FF333333"
                 android:textSize="12sp"
                 android:textStyle="bold"
                 android:maxLines="1"
                 android:ellipsize="end"
                 tools:text="cache_image_12345.tmp" />
-
-
 
         </LinearLayout>
 

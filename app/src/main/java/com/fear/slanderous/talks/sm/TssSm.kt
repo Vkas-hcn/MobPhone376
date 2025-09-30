@@ -1,62 +1,56 @@
 package com.fear.slanderous.talks.sm
 
-
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.databinding.DataBindingUtil
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.ListAdapter
-import androidx.recyclerview.widget.RecyclerView
 import com.fear.slanderous.talks.R
-import com.fear.slanderous.talks.databinding.ItemCategoryBinding
-import com.fear.slanderous.talks.databinding.ItemFileBinding
-import com.fear.slanderous.talks.databinding.TssMasterBinding
-import com.fear.slanderous.talks.databinding.TssOneBinding
 import com.fear.slanderous.talks.databinding.TssSmBinding
 import com.fear.slanderous.talks.js.TssJs
-import kotlin.reflect.KProperty
 
-
-class TssSm : AppCompatActivity() {
+class TssSm : AppCompatActivity(), JunkCleanView {
 
     private lateinit var binding: TssSmBinding
-
-
-    private val viewModel: JunkCleanViewModel by viewModels {
-        JunkCleanViewModelFactory(
-            JunkFileRepository(this)
-        )
-    }
+    private lateinit var presenter: JunkCleanPresenter
 
     private val categoryAdapter by lazy {
         CategoryAdapter(
-            onCategoryClick = viewModel::toggleCategoryExpansion,
-            onCategorySelectClick = viewModel::toggleCategorySelection,
-            onFileSelectClick = viewModel::toggleFileSelection
+            onCategoryClick = { category ->
+                presenter.toggleCategoryExpansion(category)
+            },
+            onCategorySelectClick = { category ->
+                presenter.toggleCategorySelection(category)
+            },
+            onFileSelectClick = { file, category ->
+                presenter.toggleFileSelection(file, category)
+            }
         )
     }
-
-    private var uiState by UiStateDelegate()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setupViews()
         setupWindowInsets()
-        setupObservers()
 
-        viewModel.startScan()
+        // Initialize presenter
+        presenter = JunkCleanPresenterImpl(JunkFileRepository(this))
+        presenter.attachView(this)
+
+        // Start scanning
+        presenter.startScan()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        presenter.detachView()
     }
 
     private fun setupWindowInsets() {
@@ -71,123 +65,79 @@ class TssSm : AppCompatActivity() {
     private fun setupViews() {
         binding = DataBindingUtil.setContentView(this, R.layout.tss_sm)
 
-        binding.apply {
-            lifecycleOwner = this@TssSm
-            viewModel = this@TssSm.viewModel
-        }
-
         binding.rvCategories.apply {
             layoutManager = LinearLayoutManager(this@TssSm)
             adapter = categoryAdapter
         }
 
         binding.btnBack.setOnClickListener { finish() }
-        binding.btnCleanNow.setOnClickListener { viewModel.startClean() }
-
-        uiState = UiState.Scanning
-    }
-
-    private fun setupObservers() {
-        viewModel.scanState.observe(this) { state ->
-            handleScanState(state)
+        binding.btnCleanNow.setOnClickListener {
+            presenter.startClean()
         }
 
-        viewModel.cleanState.observe(this) { state ->
-            handleCleanState(state)
-        }
-
-        viewModel.categories.observe(this) { categories ->
-            categoryAdapter.submitList(categories) {
-                categoryAdapter.notifyDataSetChanged()
-            }
-        }
-
-        viewModel.formattedTotalSize.observe(this) { formattedSize ->
-            updateSizeDisplay(formattedSize)
-        }
-
-        viewModel.formattedSelectedSize.observe(this) { selectedSize ->
-            binding.btnCleanNow.isEnabled = selectedSize != "0.0 KB"
+        // Set initial UI state
+        binding.apply {
+            tvTitle.text = "Scanning"
+            btnCleanNow.visibility = View.GONE
+            progressScaning.visibility = View.GONE
         }
     }
 
-    private fun handleScanState(state: ScanState) {
-        when (state) {
-            is ScanState.Scanning -> {
-                uiState = UiState.Scanning
-                binding.apply {
-                    progressScaning.visibility = View.VISIBLE
-                    progressScaning.progress = state.progress
-                    tvScanningPath.text = "Scanning: ${state.currentPath}"
-                    btnCleanNow.visibility = View.GONE
-                }
-            }
-            is ScanState.Completed -> {
-                uiState = UiState.ScanCompleted
-                binding.apply {
-                    progressScaning.visibility = View.GONE
-                    tvScanningPath.text = "Scan completed - Found ${state.totalFiles} files"
-                    btnCleanNow.visibility = if (state.totalFiles > 0) View.VISIBLE else View.GONE
+    // ===== JunkCleanView Implementation =====
 
-                    // 更新背景图片
-                    if (state.totalSize > 0) {
-                        imgScanBg.setImageResource(R.drawable.have_junk)
-                        viewBg.setBackgroundColor(Color.parseColor("#FF8E43"))
-                    }
-                }
-
-                refreshCategoryList()
-            }
-            is ScanState.Error -> {
-                uiState = UiState.Error
-                binding.apply {
-                    progressScaning.visibility = View.GONE
-                    tvScanningPath.text = "Scan error: ${state.error.message}"
-                }
-                Toast.makeText(this, "Scan failed: ${state.error.message}", Toast.LENGTH_SHORT).show()
-            }
-            else -> {}
+    override fun showScanning(progress: Int, currentPath: String) {
+        binding.apply {
+            progressScaning.visibility = View.VISIBLE
+            progressScaning.progress = progress
+            tvScanningPath.text = "Scanning: $currentPath"
+            btnCleanNow.visibility = View.GONE
         }
     }
-    private fun refreshCategoryList() {
+
+    override fun showScanCompleted(totalFiles: Int, totalSize: Long) {
+        binding.apply {
+            progressScaning.visibility = View.GONE
+            tvScanningPath.text = "Scan completed - Found $totalFiles files"
+            btnCleanNow.visibility = if (totalFiles > 0) View.VISIBLE else View.GONE
+        }
+
+        // Refresh the list after scan completion
         binding.rvCategories.postDelayed({
             categoryAdapter.notifyDataSetChanged()
         }, 100)
     }
 
-    private fun handleCleanState(state: CleanState) {
-        when (state) {
-            is CleanState.Cleaning -> {
-                uiState = UiState.Cleaning
-                binding.apply {
-                    tvScanningPath.text = "Cleaning: ${state.currentFile}"
-                    btnCleanNow.isEnabled = false
-                }
-            }
-            is CleanState.Completed -> {
-                uiState = UiState.CleanCompleted
-                Toast.makeText(
-                    this,
-                    "Cleaned ${state.deletedCount} files (${FileUtils.formatFileSize(state.deletedSize)})",
-                    Toast.LENGTH_SHORT
-                ).show()
+    override fun showScanError(error: String) {
+        binding.apply {
+            progressScaning.visibility = View.GONE
+            tvScanningPath.text = "Scan error: $error"
+        }
+        showToast("Scan failed: $error")
+    }
 
-                val intent = Intent(this, TssJs::class.java)
-                intent.putExtra("CLEANED_SIZE", state.deletedSize)
-                intent.putExtra("jump_type", "junk")
-                startActivity(intent)
-                finish()
-            }
-            is CleanState.Error -> {
-                uiState = UiState.Error
-                binding.btnCleanNow.isEnabled = true
-                Toast.makeText(this, "Clean failed: ${state.error.message}", Toast.LENGTH_SHORT).show()
-            }
-            else -> {}
+    override fun showCleaning(progress: Int, currentFile: String) {
+        binding.apply {
+            tvScanningPath.text = "Cleaning: $currentFile"
+            btnCleanNow.isEnabled = false
         }
     }
 
-    private fun updateSizeDisplay(formattedSize: String) {
+    override fun showCleanCompleted(deletedCount: Int, deletedSize: Long) {
+        showToast("Cleaned $deletedCount files (${FileUtils.formatFileSize(deletedSize)})")
+    }
+
+    override fun showCleanError(error: String) {
+        binding.btnCleanNow.isEnabled = true
+        showToast("Clean failed: $error")
+    }
+
+    override fun updateCategories(categories: List<JunkCategory>) {
+        categoryAdapter.submitList(categories.toList()) {
+            categoryAdapter.notifyDataSetChanged()
+        }
+    }
+
+    override fun updateTotalSize(formattedSize: String) {
         val parts = formattedSize.split(" ")
         if (parts.size == 2) {
             binding.tvScannedSize.text = parts[0]
@@ -197,197 +147,50 @@ class TssSm : AppCompatActivity() {
             binding.tvScannedSizeUn.text = ""
         }
     }
-}
 
+    override fun updateSelectedSize(formattedSize: String) {
+        // Can be used to show selected size if needed
+    }
 
-enum class UiState {
-    Idle, Scanning, ScanCompleted, Cleaning, CleanCompleted, Error
-}
+    override fun enableCleanButton(enable: Boolean) {
+        binding.btnCleanNow.isEnabled = enable
+    }
 
-
-class UiStateDelegate {
-    private var state: UiState = UiState.Idle
-
-    operator fun getValue(thisRef: Any?, property: KProperty<*>): UiState = state
-
-    operator fun setValue(thisRef: Any?, property: KProperty<*>, value: UiState) {
-        if (state != value) {
-            state = value
+    override fun showProgressBar(show: Boolean, progress: Int) {
+        binding.progressScaning.apply {
+            visibility = if (show) View.VISIBLE else View.GONE
+            this.progress = progress
         }
     }
-}
 
-
-class CategoryAdapter(
-    private val onCategoryClick: (JunkCategory) -> Unit,
-    private val onCategorySelectClick: (JunkCategory) -> Unit,
-    private val onFileSelectClick: (JunkFile, JunkCategory) -> Unit
-) : ListAdapter<JunkCategory, CategoryAdapter.CategoryViewHolder>(CategoryDiffCallback()) {
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryViewHolder {
-        val binding = ItemCategoryBinding.inflate(
-            LayoutInflater.from(parent.context),
-            parent,
-            false
-        )
-        return CategoryViewHolder(binding)
+    override fun updateScanningPath(path: String) {
+        binding.tvScanningPath.text = path
     }
 
-    override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
-        holder.bind(getItem(position))
+    override fun showCleanButton(show: Boolean) {
+        binding.btnCleanNow.visibility = if (show) View.VISIBLE else View.GONE
     }
 
-    inner class CategoryViewHolder(
-        private val binding: ItemCategoryBinding
-    ) : RecyclerView.ViewHolder(binding.root) {
-
-        private val fileAdapter by lazy {
-            FileAdapter { file ->
-                val category = getItem(adapterPosition)
-                onFileSelectClick(file, category)
-            }
-        }
-
-        init {
-            binding.rvItemFile.apply {
-                layoutManager = LinearLayoutManager(binding.root.context)
-                adapter = fileAdapter
-            }
-
-            binding.llCategory.setOnClickListener {
-                val category = getItem(adapterPosition)
-                onCategoryClick(category)
-            }
-
-            binding.imgSelect.setOnClickListener {
-                val category = getItem(adapterPosition)
-                onCategorySelectClick(category)
-            }
-        }
-
-        fun bind(category: JunkCategory) {
-            binding.category = category
-
-            binding.apply {
-
-                imgSelect.setImageResource(
-                    if (category.isSelected) R.drawable.cheak_icon else R.drawable.discheak_icon
-                )
-
-                imgInstruct.setImageResource(
-                    if (category.isExpanded) R.drawable.xia_icon else R.drawable.shang_icon
-                )
-
-                rvItemFile.visibility = if (category.isExpanded) View.VISIBLE else View.GONE
-
-                tvTitle.text = category.name
-                tvSize.text = category.formattedTotalSize
-
-                // 更新文件列表
-                if (category.isExpanded) {
-                    fileAdapter.submitList(category.files.toList()) {
-                        rvItemFile.visibility = View.VISIBLE
-                        fileAdapter.notifyDataSetChanged()
-                    }
-                }
-
-                executePendingBindings()
-            }
-        }
-    }
-}
-
-
-class CategoryDiffCallback : DiffUtil.ItemCallback<JunkCategory>() {
-    override fun areItemsTheSame(oldItem: JunkCategory, newItem: JunkCategory): Boolean {
-        return oldItem.type == newItem.type
-    }
-
-    override fun areContentsTheSame(oldItem: JunkCategory, newItem: JunkCategory): Boolean {
-        return oldItem == newItem &&
-                oldItem.files.size == newItem.files.size &&
-                oldItem.isExpanded == newItem.isExpanded &&
-                oldItem.isSelected == newItem.isSelected
-    }
-}
-
-
-class FileAdapter(
-    private val onFileClick: (JunkFile) -> Unit
-) : ListAdapter<JunkFile, FileAdapter.FileViewHolder>(FileDiffCallback()) {
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FileViewHolder {
-        val binding = ItemFileBinding.inflate(
-            LayoutInflater.from(parent.context),
-            parent,
-            false
-        )
-        return FileViewHolder(binding)
-    }
-
-    override fun onBindViewHolder(holder: FileViewHolder, position: Int) {
-        holder.bind(getItem(position))
-    }
-
-    override fun onBindViewHolder(holder: FileViewHolder, position: Int, payloads: MutableList<Any>) {
-        if (payloads.isEmpty()) {
-            super.onBindViewHolder(holder, position, payloads)
+    override fun updateBackgroundForJunk(hasJunk: Boolean) {
+        if (hasJunk) {
+            binding.imgScanBg.setImageResource(R.drawable.have_junk)
+            binding.viewBg.setBackgroundColor(Color.parseColor("#FF8E43"))
         } else {
-            val file = getItem(position)
-            holder.updateSelectionState(file)
+            binding.imgScanBg.setImageResource(R.drawable.no_junk)
+            binding.viewBg.setBackgroundColor(Color.parseColor("#066BFA"))
         }
     }
 
-    inner class FileViewHolder(
-        private val binding: ItemFileBinding
-    ) : RecyclerView.ViewHolder(binding.root) {
-
-        init {
-            binding.root.setOnClickListener {
-                if (adapterPosition != RecyclerView.NO_POSITION) {
-                    val file = getItem(adapterPosition)
-                    onFileClick(file)
-                }
-            }
-
-            binding.imgFileSelect.setOnClickListener {
-                if (adapterPosition != RecyclerView.NO_POSITION) {
-                    val file = getItem(adapterPosition)
-                    onFileClick(file)
-                }
-            }
+    override fun navigateToCleanSuccess(deletedSize: Long) {
+        val intent = Intent(this, TssJs::class.java).apply {
+            putExtra("CLEANED_SIZE", deletedSize)
+            putExtra("jump_type", "junk")
         }
-
-        fun bind(file: JunkFile) {
-            binding.file = file
-
-            updateSelectionState(file)
-
-            binding.executePendingBindings()
-        }
-
-        fun updateSelectionState(file: JunkFile) {
-            binding.imgFileSelect.setImageResource(
-                if (file.isSelected) R.drawable.cheak_icon else R.drawable.discheak_icon
-            )
-        }
-    }
-}
-
-class FileDiffCallback : DiffUtil.ItemCallback<JunkFile>() {
-    override fun areItemsTheSame(oldItem: JunkFile, newItem: JunkFile): Boolean {
-        return oldItem.path == newItem.path
+        startActivity(intent)
+        finish()
     }
 
-    override fun areContentsTheSame(oldItem: JunkFile, newItem: JunkFile): Boolean {
-        return oldItem == newItem && oldItem.isSelected == newItem.isSelected
-    }
-
-    override fun getChangePayload(oldItem: JunkFile, newItem: JunkFile): Any? {
-        return if (oldItem.isSelected != newItem.isSelected) {
-            "selection_changed"
-        } else {
-            null
-        }
+    override fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 }

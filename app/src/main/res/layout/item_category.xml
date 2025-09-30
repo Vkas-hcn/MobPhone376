@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- item_category.xml - MVP版本 -->
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
-        <variable
-            name="category"
-            type="com.fear.slanderous.talks.sm.JunkCategory" />
-    </data>
+    <!-- 移除data绑定，保留layout结构以使用DataBinding获取ID -->
 
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
@@ -33,21 +30,17 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent">
 
-
-
                 <TextView
                     android:id="@+id/tv_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="12dp"
-                    android:text="@{category.name}"
                     android:textColor="#FF333333"
                     android:textSize="15sp"
                     android:textStyle="bold"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     tools:text="App Cache" />
-
 
                 <ImageView
                     android:id="@+id/img_instruct"
@@ -63,7 +56,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="12dp"
-                    android:text="@{category.formattedTotalSize}"
                     android:textColor="#FF888A8F"
                     android:textSize="12sp"
                     android:textStyle="bold"

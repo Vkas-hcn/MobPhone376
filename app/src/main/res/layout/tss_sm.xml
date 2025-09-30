@@ -1,14 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- activity_junk.xml - 支持DataBinding的主布局 -->
+<!-- tss_sm.xml - MVP版本，移除了viewModel绑定 -->
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
-        <variable
-            name="viewModel"
-            type="com.fear.slanderous.talks.sm.JunkCleanViewModel" />
-    </data>
+    <!-- 移除了data标签中的viewModel变量 -->
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/junk"
@@ -23,6 +19,7 @@
             android:layout_height="203dp"
             android:background="#066BFA"
             app:layout_constraintTop_toTopOf="parent" />
+
         <!-- 背景图片 -->
         <ImageView
             android:id="@+id/img_scan_bg"
@@ -70,7 +67,6 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <!-- 扫描进度条 -->
-
         <com.google.android.material.progressindicator.LinearProgressIndicator
             android:id="@+id/progress_scaning"
             android:layout_width="match_parent"
@@ -85,6 +81,7 @@
             app:trackColor="#125BC3"
             app:trackCornerRadius="8dp"
             app:trackThickness="6dp" />
+
         <!-- 扫描详情区域 -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/scanning_details"
@@ -107,27 +104,25 @@
                     android:id="@+id/tv_scanned_size"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@{viewModel.formattedTotalSize.split(` `)[0] ?? `0.0`}"
+                    android:text="0"
                     android:textColor="@color/white"
                     android:textSize="36sp"
                     android:textStyle="bold"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    tools:text="0" />
+                    app:layout_constraintBottom_toBottomOf="parent" />
 
                 <TextView
                     android:id="@+id/tv_scanned_size_un"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
-                    android:text="@{viewModel.formattedTotalSize.split(` `)[1] ?? `KB`}"
+                    android:text="KB"
                     android:textColor="@color/white"
                     android:textSize="18sp"
                     android:textStyle="bold"
                     app:layout_constraintStart_toEndOf="@id/tv_scanned_size"
-                    app:layout_constraintBottom_toBottomOf="@id/tv_scanned_size"
-                    tools:text="MB" />
+                    app:layout_constraintBottom_toBottomOf="@id/tv_scanned_size" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -175,7 +170,6 @@
             android:backgroundTint="#FF8E43"
             app:cornerRadius="11dp"
             app:elevation="5dp"
-
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
